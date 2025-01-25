@@ -11,8 +11,16 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",
+    "@emotion/react": "^11.14.0",
+    "@table-library/react-table-library": "^4.1.7",
+    "@tanstack/react-router": "^1.97.16",
+    "@tanstack/router-devtools": "^1.97.16",
+    "@tanstack/router-plugin": "^1.97.16",
     "aws-amplify": "^6.6.6",
+    "bootstrap": "^5.3.3",
     "react": "^18.2.0",
+    "react-bootstrap": "^2.10.8",
+    "react-bootstrap-icons": "^1.11.5",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
@@ -20,6 +28,7 @@
     "@aws-amplify/backend-cli": "^1.2.9",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/w3c-web-usb": "^1.0.10",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
@@ -30,8 +39,12 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "fs": "^0.0.1-security",
+    "globals": "^15.14.0",
+    "os": "^0.1.2",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
