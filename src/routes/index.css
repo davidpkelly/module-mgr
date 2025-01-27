@@ -1,0 +1,18 @@
+.logo-class {
+  width: 250px;
+  height: 250px;
+}
+
+.sidebar {
+  background-color: gainsboro;
+  height: 100vh;
+}
+
+.sidebar *> .nav-link a, .active {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.sidebar *> .nav-item a {
+  color: darkslategray !important;
+}
