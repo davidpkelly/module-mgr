@@ -8,12 +8,9 @@ import {
   useRouterState,
   Link,
 } from "@tanstack/react-router";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
 import { useAuth } from "../auth";
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
 
 const fallback = "/main" as const;
 
@@ -36,30 +33,65 @@ function LoginPage() {
   const search = Route.useSearch();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [warnEmail, setWarnEmail] = useState(false);
+  const [warnPassword, setWarnPassword] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("password");
+  const [eye, setEye] = useState(true);
 
   const onFormSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true);
     try {
       evt.preventDefault();
-      //   const data = new FormData(evt.currentTarget);
-      //   const fieldValue = data.get("username");
-
-      //   if (!fieldValue) return;
-      //   const username = fieldValue.toString();
-      if (!username) return;
+      setWarnEmail(false);
+      setWarnPassword(false);
+      if (!username) {
+        setWarnEmail(true);
+      } else if (password == "") {
+        setWarnPassword(true);
+      }
+      if (warnEmail || warnPassword) {
+        return;
+      }
       await auth.login(username, password);
-
       await router.invalidate();
 
       // This is just a hack being used to wait for the auth state to update
       // in a real app, you'd want to use a more robust solution
-      await sleep(1);
+      await new Promise((resolve) => setTimeout(resolve, 1));
       // @ts-ignore
       await navigate({ to: search.redirect || fallback });
     } catch (error) {
       console.error("Error logging in: ", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const showHidePassword = () => {
+    if (passwordInput == "password") {
+      setPasswordInput("text");
+      setEye(false);
+    } else {
+      setPasswordInput("password");
+      setEye(true);
+    }
+  };
+
+  const cancelLogin = async () => {
+    setUserName("");
+    setPassword("");
+    setWarnEmail(false);
+    setWarnPassword(false);
+    try {
+      await auth.logout();
+    } catch (error) {}
+  };
+
+  const resetPassword = async () => {
+    try {
+      await auth.resetPassword(username);
+    } catch (error) {
+      console.error("Error resetting password: ", error);
     }
   };
 
@@ -76,32 +108,60 @@ function LoginPage() {
         <Col sm={6}>
           <Form onSubmit={onFormSubmit}>
             <Form.Group className="mb-3" controlId="formBasicText">
-              <Form.Label>User Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter User Name"
-                onChange={(evt) => setUserName(evt.target.value)}
-              />
+              <Form.Label>Email</Form.Label>
+              <InputGroup className="mb-3">
+                <InputGroup.Text>
+                  <Envelope size={16} />
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Email"
+                  onChange={(evt) => setUserName(evt.target.value)}
+                  isInvalid={warnEmail}
+                />
+              </InputGroup>
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                minLength={8}
-                placeholder="Enter Password"
-                onChange={(evt) => setPassword(evt.target.value)}
-              />
+              <InputGroup className="mb-3">
+                <InputGroup.Text>
+                  <Lock size={16} />
+                </InputGroup.Text>
+                <Form.Control
+                  type={passwordInput}
+                  minLength={8}
+                  placeholder="Enter Password"
+                  onChange={(evt) => setPassword(evt.target.value)}
+                  isInvalid={warnPassword}
+                />
+                <InputGroup.Text>
+                  {eye ? (
+                    <EyeSlash
+                      size={16}
+                      onClick={(_evt) => showHidePassword()}
+                    />
+                  ) : (
+                    <Eye size={16} onClick={(_evt) => showHidePassword()} />
+                  )}
+                </InputGroup.Text>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group className="mb-3 forgot">
+              <Form.Text as="small">
+                Forgot your password?{" "}
+                <a href="#" onClick={() => resetPassword()}>
+                  Reset Password
+                </a>
+              </Form.Text>
             </Form.Group>
             <Button variant="primary" type="submit">
               {isLoggingIn ? "Loading..." : "Login >>"}
             </Button>
             &nbsp;&nbsp;
-            <Link to="/register">
-              <Button variant="outline-primary">Register</Button>
-            </Link>
-            &nbsp;&nbsp;
             <Link to="/">
-              <Button variant="outline-primary">Cancel</Button>
+              <Button variant="outline-primary" onClick={() => cancelLogin()}>
+                Cancel
+              </Button>
             </Link>
           </Form>
         </Col>
