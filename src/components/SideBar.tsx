@@ -1,6 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 
-import { Nav } from "react-bootstrap";
+import { Nav, NavItem, NavDropdown } from "react-bootstrap";
 import "../index.css";
 
 const SideBar = () => {
@@ -9,7 +9,7 @@ const SideBar = () => {
 
   return (
     <Nav className="flex-column" defaultActiveKey="/main">
-      <Nav.Item className="mt-2">
+      <NavItem className="mt-2">
         <Nav.Link
           href="/main"
           eventKey="link-1"
@@ -17,16 +17,18 @@ const SideBar = () => {
         >
           Configure
         </Nav.Link>
-      </Nav.Item>
-      <Nav.Item className="mt-2">
-        <Nav.Link
-          href="/admin"
-          eventKey="link-2"
-          active={activeRoute === "/admin"}
-        >
-          Admin
-        </Nav.Link>
-      </Nav.Item>
+        <NavDropdown title="Admin" id="sidebar-sub-menu" show={true}>
+          <NavDropdown.Item
+            href="/module-profiles"
+            active={activeRoute === "/module-profiles"}
+          >
+            Module Profiles
+          </NavDropdown.Item>
+          <NavDropdown.Item href="/users" active={activeRoute === "/users"}>
+            User Mgmt
+          </NavDropdown.Item>
+        </NavDropdown>
+      </NavItem>
     </Nav>
   );
 };

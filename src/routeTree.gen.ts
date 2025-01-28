@@ -15,7 +15,9 @@ import { Route as RegisterImport } from './routes/register'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthProfileImport } from './routes/_auth/profile'
+import { Route as AuthUsersImport } from './routes/_auth/users'
+import { Route as AuthUserProfileImport } from './routes/_auth/user-profile'
+import { Route as AuthModuleProfilesImport } from './routes/_auth/module-profiles'
 import { Route as AuthMainImport } from './routes/_auth/main'
 import { Route as AuthHelpImport } from './routes/_auth/help'
 import { Route as AuthAdminImport } from './routes/_auth/admin'
@@ -46,9 +48,21 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthProfileRoute = AuthProfileImport.update({
-  id: '/profile',
-  path: '/profile',
+const AuthUsersRoute = AuthUsersImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthUserProfileRoute = AuthUserProfileImport.update({
+  id: '/user-profile',
+  path: '/user-profile',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthModuleProfilesRoute = AuthModuleProfilesImport.update({
+  id: '/module-profiles',
+  path: '/module-profiles',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -136,11 +150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthMainImport
       parentRoute: typeof AuthImport
     }
-    '/_auth/profile': {
-      id: '/_auth/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthProfileImport
+    '/_auth/module-profiles': {
+      id: '/_auth/module-profiles'
+      path: '/module-profiles'
+      fullPath: '/module-profiles'
+      preLoaderRoute: typeof AuthModuleProfilesImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/user-profile': {
+      id: '/_auth/user-profile'
+      path: '/user-profile'
+      fullPath: '/user-profile'
+      preLoaderRoute: typeof AuthUserProfileImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/users': {
+      id: '/_auth/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthUsersImport
       parentRoute: typeof AuthImport
     }
   }
@@ -153,7 +181,9 @@ interface AuthRouteChildren {
   AuthAdminRoute: typeof AuthAdminRoute
   AuthHelpRoute: typeof AuthHelpRoute
   AuthMainRoute: typeof AuthMainRoute
-  AuthProfileRoute: typeof AuthProfileRoute
+  AuthModuleProfilesRoute: typeof AuthModuleProfilesRoute
+  AuthUserProfileRoute: typeof AuthUserProfileRoute
+  AuthUsersRoute: typeof AuthUsersRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -161,7 +191,9 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthAdminRoute: AuthAdminRoute,
   AuthHelpRoute: AuthHelpRoute,
   AuthMainRoute: AuthMainRoute,
-  AuthProfileRoute: AuthProfileRoute,
+  AuthModuleProfilesRoute: AuthModuleProfilesRoute,
+  AuthUserProfileRoute: AuthUserProfileRoute,
+  AuthUsersRoute: AuthUsersRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -175,7 +207,9 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthAdminRoute
   '/help': typeof AuthHelpRoute
   '/main': typeof AuthMainRoute
-  '/profile': typeof AuthProfileRoute
+  '/module-profiles': typeof AuthModuleProfilesRoute
+  '/user-profile': typeof AuthUserProfileRoute
+  '/users': typeof AuthUsersRoute
 }
 
 export interface FileRoutesByTo {
@@ -187,7 +221,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthAdminRoute
   '/help': typeof AuthHelpRoute
   '/main': typeof AuthMainRoute
-  '/profile': typeof AuthProfileRoute
+  '/module-profiles': typeof AuthModuleProfilesRoute
+  '/user-profile': typeof AuthUserProfileRoute
+  '/users': typeof AuthUsersRoute
 }
 
 export interface FileRoutesById {
@@ -200,7 +236,9 @@ export interface FileRoutesById {
   '/_auth/admin': typeof AuthAdminRoute
   '/_auth/help': typeof AuthHelpRoute
   '/_auth/main': typeof AuthMainRoute
-  '/_auth/profile': typeof AuthProfileRoute
+  '/_auth/module-profiles': typeof AuthModuleProfilesRoute
+  '/_auth/user-profile': typeof AuthUserProfileRoute
+  '/_auth/users': typeof AuthUsersRoute
 }
 
 export interface FileRouteTypes {
@@ -214,7 +252,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/help'
     | '/main'
-    | '/profile'
+    | '/module-profiles'
+    | '/user-profile'
+    | '/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -225,7 +265,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/help'
     | '/main'
-    | '/profile'
+    | '/module-profiles'
+    | '/user-profile'
+    | '/users'
   id:
     | '__root__'
     | '/'
@@ -236,7 +278,9 @@ export interface FileRouteTypes {
     | '/_auth/admin'
     | '/_auth/help'
     | '/_auth/main'
-    | '/_auth/profile'
+    | '/_auth/module-profiles'
+    | '/_auth/user-profile'
+    | '/_auth/users'
   fileRoutesById: FileRoutesById
 }
 
@@ -280,7 +324,9 @@ export const routeTree = rootRoute
         "/_auth/admin",
         "/_auth/help",
         "/_auth/main",
-        "/_auth/profile"
+        "/_auth/module-profiles",
+        "/_auth/user-profile",
+        "/_auth/users"
       ]
     },
     "/login": {
@@ -305,8 +351,16 @@ export const routeTree = rootRoute
       "filePath": "_auth/main.tsx",
       "parent": "/_auth"
     },
-    "/_auth/profile": {
-      "filePath": "_auth/profile.tsx",
+    "/_auth/module-profiles": {
+      "filePath": "_auth/module-profiles.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/user-profile": {
+      "filePath": "_auth/user-profile.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/users": {
+      "filePath": "_auth/users.tsx",
       "parent": "/_auth"
     }
   }

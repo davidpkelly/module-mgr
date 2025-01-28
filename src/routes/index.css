@@ -16,3 +16,14 @@
 .sidebar *> .nav-item a {
   color: darkslategray !important;
 }
+
+.sidebar *> .dropdown-menu {
+  background-color: gainsboro;
+  border: none;
+  padding-left: 10px;
+}
+
+.sidebar *> .dropdown-menu a {
+  background-color: gainsboro;
+  border: none;
+}
