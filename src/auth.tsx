@@ -27,7 +27,6 @@ function setStoredUser(user: string | null) {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<string | null>(getStoredUser());
-  // const [user, setUser] = React.useState<string | null>(null);
   const isAuthenticated = !!user;
 
   const logout = React.useCallback(async () => {
@@ -42,15 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await signIn({ username, password });
         setStoredUser(username);
         setUser(username);
-
-        // const { username: uname, userId, signInDetails } = await getCurrentUser();
-        // console.log("[getCurrentUser]:", { uname, userId, signInDetails });
         const session = await fetchAuthSession();
         console.log("[fetchAuthSession]:", session);
-
-
-      } catch (error) {
-        console.error("Failed to sign in:", error);
+      } catch (error: any) {
         throw error;
       } finally {
       }

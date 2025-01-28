@@ -8,7 +8,16 @@ import {
   useRouterState,
   Link,
 } from "@tanstack/react-router";
-import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+  Row,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 import { useAuth } from "../auth";
 import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
 
@@ -37,6 +46,7 @@ function LoginPage() {
   const [warnPassword, setWarnPassword] = useState(false);
   const [passwordInput, setPasswordInput] = useState("password");
   const [eye, setEye] = useState(true);
+  const [showToast, setShowToast] = useState(false);
 
   const onFormSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true);
@@ -60,8 +70,12 @@ function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1));
       // @ts-ignore
       await navigate({ to: search.redirect || fallback });
-    } catch (error) {
-      console.error("Error logging in: ", error);
+    } catch (error: any) {
+      if (error?.name === "NotAuthorizedException") {
+        setShowToast(true);
+      } else {
+        console.error("Failed to sign in:", error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +103,7 @@ function LoginPage() {
 
   const resetPassword = async () => {
     try {
-      await auth.resetPassword(username);
+      await auth.resetPassword();
     } catch (error) {
       console.error("Error resetting password: ", error);
     }
@@ -98,74 +112,89 @@ function LoginPage() {
   const isLoggingIn = isLoading || isSubmitting;
 
   return (
-    <Container>
-      <Row className="justify-content-md-center px-4 my-5">
-        <Col sm={6}>
-          <h1>Login</h1>
-        </Col>
-      </Row>
-      <Row className="justify-content-md-center px-4 my-5">
-        <Col sm={6}>
-          <Form onSubmit={onFormSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicText">
-              <Form.Label>Email</Form.Label>
-              <InputGroup className="mb-3">
-                <InputGroup.Text>
-                  <Envelope size={16} />
-                </InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Email"
-                  onChange={(evt) => setUserName(evt.target.value)}
-                  isInvalid={warnEmail}
-                />
-              </InputGroup>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <InputGroup className="mb-3">
-                <InputGroup.Text>
-                  <Lock size={16} />
-                </InputGroup.Text>
-                <Form.Control
-                  type={passwordInput}
-                  minLength={8}
-                  placeholder="Enter Password"
-                  onChange={(evt) => setPassword(evt.target.value)}
-                  isInvalid={warnPassword}
-                />
-                <InputGroup.Text>
-                  {eye ? (
-                    <EyeSlash
-                      size={16}
-                      onClick={(_evt) => showHidePassword()}
-                    />
-                  ) : (
-                    <Eye size={16} onClick={(_evt) => showHidePassword()} />
-                  )}
-                </InputGroup.Text>
-              </InputGroup>
-            </Form.Group>
-            <Form.Group className="mb-3 forgot">
-              <Form.Text as="small">
-                Forgot your password?{" "}
-                <a href="#" onClick={() => resetPassword()}>
-                  Reset Password
-                </a>
-              </Form.Text>
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              {isLoggingIn ? "Loading..." : "Login >>"}
-            </Button>
-            &nbsp;&nbsp;
-            <Link to="/">
-              <Button variant="outline-primary" onClick={() => cancelLogin()}>
-                Cancel
+    <>
+      <ToastContainer position="top-center">
+        <Toast
+          className="d-inline-block m-1"
+          bg={"warning"}
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          autohide
+        >
+          <Toast.Body>
+            Failed to login. Check your username and password.
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+      <Container>
+        <Row className="justify-content-md-center px-4 my-5">
+          <Col sm={6}>
+            <h1>Login</h1>
+          </Col>
+        </Row>
+        <Row className="justify-content-md-center px-4 my-5">
+          <Col sm={6}>
+            <Form onSubmit={onFormSubmit}>
+              <Form.Group className="mb-3" controlId="formBasicText">
+                <Form.Label>Email</Form.Label>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <Envelope size={16} />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type="text"
+                    placeholder="Email"
+                    onChange={(evt) => setUserName(evt.target.value)}
+                    isInvalid={warnEmail}
+                  />
+                </InputGroup>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Label>Password</Form.Label>
+                <InputGroup className="mb-3">
+                  <InputGroup.Text>
+                    <Lock size={16} />
+                  </InputGroup.Text>
+                  <Form.Control
+                    type={passwordInput}
+                    minLength={8}
+                    placeholder="Enter Password"
+                    onChange={(evt) => setPassword(evt.target.value)}
+                    isInvalid={warnPassword}
+                  />
+                  <InputGroup.Text>
+                    {eye ? (
+                      <EyeSlash
+                        size={16}
+                        onClick={(_evt) => showHidePassword()}
+                      />
+                    ) : (
+                      <Eye size={16} onClick={(_evt) => showHidePassword()} />
+                    )}
+                  </InputGroup.Text>
+                </InputGroup>
+              </Form.Group>
+              <Form.Group className="mb-3 forgot">
+                <Form.Text as="small">
+                  Forgot your password?{" "}
+                  <a href="#" onClick={() => resetPassword()}>
+                    Reset Password
+                  </a>
+                </Form.Text>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                {isLoggingIn ? "Loading..." : "Login >>"}
               </Button>
-            </Link>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+              &nbsp;&nbsp;
+              <Link to="/">
+                <Button variant="outline-primary" onClick={() => cancelLogin()}>
+                  Cancel
+                </Button>
+              </Link>
+            </Form>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 }
