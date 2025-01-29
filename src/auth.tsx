@@ -1,10 +1,13 @@
 import * as React from "react";
 import {
+  confirmSignIn,
+  resetPassword,
   signIn,
   signOut,
   getCurrentUser,
   fetchAuthSession,
   JWT,
+  ResetPasswordInput,
 } from "aws-amplify/auth";
 
 export interface AuthContext {
@@ -12,7 +15,8 @@ export interface AuthContext {
   isCheckingAuth: boolean;
   login: (username: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
-  resetPassword(): unknown;
+  resetPasswd: (username: string) => Promise<void>;
+  confirmLogIn: (password: string) => Promise<any>;
   user: JWT | undefined;
 }
 
@@ -40,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => setIsAuthenticated(false))
       .then(() => setIsCheckingAuth(false));
 
-  const logout = React.useCallback(async () => {
+  const logout = React.useCallback(async (): Promise<void>  => {
     setIsAuthenticated(false);
     await signOut();
     setIsAuthenticated(false);
@@ -48,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = React.useCallback(
-    async (username: string, password: string) => {
+    async (username: string, password: string): Promise<any>  => {
       try {
         const signinUser = await signIn({ username, password });
         setIsAuthenticated(true);
@@ -66,9 +70,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const resetPassword = async () => {
-    alert(`TBD:: Reset password `);
-  };
+  //TBD: FIXME
+  const resetPasswd = React.useCallback(async (username: string): Promise<void> => {
+    try {
+      const cfg = {} as ResetPasswordInput;
+      cfg.username = username;
+      const resetPwd = await resetPassword(cfg);
+      console.log("ResetPassword: ", resetPwd);
+      setIsAuthenticated(true);
+    } catch (error: any) {
+      throw error;
+    }
+  }, []);
+
+  const confirmLogIn = React.useCallback(async (password: string): Promise<any> => {
+    try {
+      const signinUser = await confirmSignIn({
+        challengeResponse: password,
+      });
+      setIsAuthenticated(true);
+      if (signinUser.isSignedIn) {
+        const { idToken } = (await fetchAuthSession()).tokens ?? {};
+        setUser(idToken);
+      }
+      return signinUser;
+    } catch (error: any) {
+      setIsAuthenticated(false);
+      throw error;
+    } finally {
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -78,7 +109,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         login,
         logout,
-        resetPassword,
+        resetPasswd,
+        confirmLogIn
       }}
     >
       {children}

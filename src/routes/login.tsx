@@ -19,7 +19,7 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../auth";
 import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
-import { confirmSignIn, AuthError } from "aws-amplify/auth";
+import { AuthError } from "aws-amplify/auth";
 
 const fallback = "/main" as const;
 
@@ -94,7 +94,8 @@ function LoginPage() {
       }
       if (
         signedInUser?.nextStep?.signInStep ===
-        "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
+          "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED" ||
+        signedInUser?.nextStep?.signInStep === "RESET_PASSWORD"
       ) {
         // @ts-ignore
         evt?.target?.reset();
@@ -111,9 +112,7 @@ function LoginPage() {
         setWarnConfirmNewPassword(true);
       }
       try {
-        const confirmSignInResponse = await confirmSignIn({
-          challengeResponse: newPassword,
-        });
+        const confirmSignInResponse = await auth.confirmLogIn(newPassword);
         if (confirmSignInResponse.nextStep.signInStep !== "DONE") {
           console.error("SignInStep not DONE");
         }
@@ -124,7 +123,11 @@ function LoginPage() {
       }
     }
     if (signedInUser?.nextStep?.signInStep !== "DONE") {
-      setShowToast(`Failed to login: ${signedInUser?.nextStep?.signInStep || "Unknown Error"}`);
+      setShowToast(
+        `Failed to login: ${
+          signedInUser?.nextStep?.signInStep || "Unknown Error"
+        }`
+      );
     }
     await router.invalidate();
     // @ts-ignore
@@ -166,13 +169,15 @@ function LoginPage() {
     setWarnPassword(false);
     try {
       await auth.logout();
-      router.invalidate();
+      router.invalidate().finally(() => {
+        navigate({ to: "/" });
+      });
     } catch (error) {}
   };
 
-  const resetPassword = async () => {
+  const resetPassword = async (username: string) => {
     try {
-      await auth.resetPassword();
+      await auth.resetPasswd(username);
     } catch (error) {
       console.error("Error resetting password: ", error);
     }
@@ -253,7 +258,7 @@ function LoginPage() {
                   <Form.Group className="mb-3 forgot">
                     <Form.Text as="small">
                       Forgot your password?{" "}
-                      <a href="#" onClick={() => resetPassword()}>
+                      <a href="#" onClick={() => resetPassword("fixme")}>
                         Reset Password
                       </a>
                     </Form.Text>
