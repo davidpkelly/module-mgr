@@ -66,3 +66,9 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+.loading-spinner {
+  margin-left: calc(100vw / 2);
+  margin-top: calc(100vh / 2);
+  padding: 30px;
+}

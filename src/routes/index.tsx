@@ -17,12 +17,12 @@ export const Route = createFileRoute("/")({
 });
 
 function IndexPage() {
-  const router = useRouter()
-  const navigate = Route.useNavigate()
-  const auth = useAuth()
+  const router = useRouter();
+  const navigate = Route.useNavigate();
+  const auth = useAuth();
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+    if (window.confirm('Are you sure you want to logout??')) {
       auth.logout().then(() => {
         router.invalidate().finally(() => {
           navigate({ to: '/' })

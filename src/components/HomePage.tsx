@@ -5,7 +5,7 @@ const HomePage = () => {
     <Container>
       <Row className="px-4 my-5">
         <Col xs={4} sm={6}>
-          <Image src="/logo.svg" alt="logo" fluid className="logo-class" />
+          <Image src="/vite.svg" alt="logo" fluid className="logo-class" />
         </Col>
         <Col sm={6}>
           <h1 className="font-weight-light">Module Manager</h1>

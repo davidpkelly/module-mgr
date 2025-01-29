@@ -6,7 +6,6 @@ import {
   redirect,
   useRouter,
   useRouterState,
-  Link,
 } from "@tanstack/react-router";
 import {
   Button,
@@ -20,6 +19,10 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../auth";
 import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
+import {
+  confirmSignIn,
+  AuthError,
+} from "aws-amplify/auth";
 
 const fallback = "/main" as const;
 
@@ -38,22 +41,37 @@ function LoginPage() {
   const router = useRouter();
   const isLoading = useRouterState({ select: (s) => s.isLoading });
   const navigate = Route.useNavigate();
+  const [showConfirmNewPassword, setShowConfirmNewPassword] =
+    React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const search = Route.useSearch();
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [warnEmail, setWarnEmail] = useState(false);
   const [warnPassword, setWarnPassword] = useState(false);
+  const [warnNewPassword, setWarnNewPassword] = useState(false);
+  const [warnConfirmNewPassword, setWarnConfirmNewPassword] = useState(false);
   const [passwordInput, setPasswordInput] = useState("password");
+  const [newPasswordInput, setNewPasswordInput] = useState("password");
+  const [confirmNewPasswordInput, setConfirmNewPasswordInput] =
+    useState("password");
   const [eye, setEye] = useState(true);
-  const [showToast, setShowToast] = useState(false);
+  const [confirmEye, setConfirmEye] = useState(true);
+  const [showToast, setShowToast] = useState("");
+  // const [resetPassword, setResetPassword] = useState(false);
 
   const onFormSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
+    let signedInUser;
     setIsSubmitting(true);
-    try {
-      evt.preventDefault();
-      setWarnEmail(false);
-      setWarnPassword(false);
+    evt.preventDefault();
+    setWarnEmail(false);
+    setWarnPassword(false);
+    setWarnNewPassword(false);
+    setWarnConfirmNewPassword(false);
+
+    if (!showConfirmNewPassword) {
       if (!username) {
         setWarnEmail(true);
       } else if (password == "") {
@@ -62,32 +80,79 @@ function LoginPage() {
       if (warnEmail || warnPassword) {
         return;
       }
-      await auth.login(username, password);
+      try {
+        signedInUser = await auth.login(username, password);
+      } catch (error: any) {
+        if (error instanceof AuthError && error?.name === "NotAuthorizedException") {
+          setShowToast("Failed to login. Check your username and password.");
+          return;
+        } else {
+          console.error("Failed to sign in:", error);
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+      if (
+        signedInUser?.nextStep?.signInStep ===
+        "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
+      ) {
+        // @ts-ignore
+        evt?.target?.reset();
+        setShowConfirmNewPassword(true);
+        return;
+      }
+    } else {
+      if (!newPassword || !confirmNewPassword || newPassword !== confirmNewPassword) {
+        setWarnNewPassword(true);
+        setWarnConfirmNewPassword(true);
+      }
+      try {
+        const confirmSignInResponse = await confirmSignIn({
+          challengeResponse: newPassword,
+        });
+        if (confirmSignInResponse.nextStep.signInStep !== "DONE") {
+          console.error("SignInStep not DONE");
+        }
+      } catch (error) {
+        console.log("Error confirming new password", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+    // if (signedInUser.nextStep.signInStep === "DONE") {
       await router.invalidate();
-
-      // This is just a hack being used to wait for the auth state to update
-      // in a real app, you'd want to use a more robust solution
-      await new Promise((resolve) => setTimeout(resolve, 1));
       // @ts-ignore
       await navigate({ to: search.redirect || fallback });
-    } catch (error: any) {
-      if (error?.name === "NotAuthorizedException") {
-        setShowToast(true);
-      } else {
-        console.error("Failed to sign in:", error);
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    // } else {
+      // setShowToast(`Failed to login: ${signedInUser.nextStep.signInStep}`);
+    // }
   };
 
-  const showHidePassword = () => {
-    if (passwordInput == "password") {
-      setPasswordInput("text");
-      setEye(false);
+  const showHidePassword = (idx: string) => {
+    if (idx === "new") {
+      if (newPasswordInput == "password") {
+        setNewPasswordInput("text");
+        setEye(false);
+      } else {
+        setNewPasswordInput("password");
+        setEye(true);
+      }
+    } else if (idx === "confirm") {
+      if (confirmNewPasswordInput == "password") {
+        setConfirmNewPasswordInput("text");
+        setConfirmEye(false);
+      } else {
+        setConfirmNewPasswordInput("password");
+        setConfirmEye(true);
+      }
     } else {
-      setPasswordInput("password");
-      setEye(true);
+      if (passwordInput == "password") {
+        setPasswordInput("text");
+        setEye(false);
+      } else {
+        setPasswordInput("password");
+        setEye(true);
+      }
     }
   };
 
@@ -98,6 +163,7 @@ function LoginPage() {
     setWarnPassword(false);
     try {
       await auth.logout();
+      router.invalidate();
     } catch (error) {}
   };
 
@@ -117,80 +183,157 @@ function LoginPage() {
         <Toast
           className="d-inline-block m-1"
           bg={"warning"}
-          onClose={() => setShowToast(false)}
-          show={showToast}
+          onClose={() => setShowToast("")}
+          show={showToast !== ""}
           autohide
         >
           <Toast.Body>
-            Failed to login. Check your username and password.
+            {showToast}
           </Toast.Body>
         </Toast>
       </ToastContainer>
       <Container>
         <Row className="justify-content-md-center px-4 my-5">
           <Col sm={6}>
-            <h1>Login</h1>
+            {!showConfirmNewPassword ? (
+              <h1>Login</h1>
+            ) : (
+              <h2>Confirm New Password</h2>
+            )}
           </Col>
         </Row>
         <Row className="justify-content-md-center px-4 my-5">
           <Col sm={6}>
             <Form onSubmit={onFormSubmit}>
-              <Form.Group className="mb-3" controlId="formBasicText">
-                <Form.Label>Email</Form.Label>
-                <InputGroup className="mb-3">
-                  <InputGroup.Text>
-                    <Envelope size={16} />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="text"
-                    placeholder="Email"
-                    onChange={(evt) => setUserName(evt.target.value)}
-                    isInvalid={warnEmail}
-                  />
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicPassword">
-                <Form.Label>Password</Form.Label>
-                <InputGroup className="mb-3">
-                  <InputGroup.Text>
-                    <Lock size={16} />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type={passwordInput}
-                    minLength={8}
-                    placeholder="Enter Password"
-                    onChange={(evt) => setPassword(evt.target.value)}
-                    isInvalid={warnPassword}
-                  />
-                  <InputGroup.Text>
-                    {eye ? (
-                      <EyeSlash
-                        size={16}
-                        onClick={(_evt) => showHidePassword()}
+              {!showConfirmNewPassword ? (
+                <>
+                  <Form.Group className="mb-3" controlId="username">
+                    <Form.Label>Email</Form.Label>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text>
+                        <Envelope size={16} />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="text"
+                        placeholder="Email"
+                        onChange={(evt) => setUserName(evt.target.value)}
+                        isInvalid={warnEmail}
                       />
-                    ) : (
-                      <Eye size={16} onClick={(_evt) => showHidePassword()} />
-                    )}
-                  </InputGroup.Text>
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3 forgot">
-                <Form.Text as="small">
-                  Forgot your password?{" "}
-                  <a href="#" onClick={() => resetPassword()}>
-                    Reset Password
-                  </a>
-                </Form.Text>
-              </Form.Group>
+                    </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="password">
+                    <Form.Label>Password</Form.Label>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text>
+                        <Lock size={16} />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={passwordInput}
+                        minLength={8}
+                        placeholder="Enter Password"
+                        onChange={(evt) => setPassword(evt.target.value)}
+                        isInvalid={warnPassword}
+                      />
+                      <InputGroup.Text>
+                        {eye ? (
+                          <EyeSlash
+                            size={16}
+                            onClick={(_evt) => showHidePassword("")}
+                          />
+                        ) : (
+                          <Eye
+                            size={16}
+                            onClick={(_evt) => showHidePassword("")}
+                          />
+                        )}
+                      </InputGroup.Text>
+                    </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="mb-3 forgot">
+                    <Form.Text as="small">
+                      Forgot your password?{" "}
+                      <a href="#" onClick={() => resetPassword()}>
+                        Reset Password
+                      </a>
+                    </Form.Text>
+                  </Form.Group>
+                </>
+              ) : (
+                <>
+                  <Form.Group
+                    className="mb-3"
+                    controlId="formBasicNewConfirmPassword"
+                  >
+                    <Form.Label>New Password</Form.Label>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text>
+                        <Lock size={16} />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={newPasswordInput}
+                        minLength={8}
+                        placeholder="Enter Password"
+                        onChange={(evt) => setNewPassword(evt.target.value)}
+                        isInvalid={warnNewPassword}
+                      />
+                      <InputGroup.Text>
+                        {eye ? (
+                          <EyeSlash
+                            size={16}
+                            onClick={(_evt) => showHidePassword("new")}
+                          />
+                        ) : (
+                          <Eye
+                            size={16}
+                            onClick={(_evt) => showHidePassword("new")}
+                          />
+                        )}
+                      </InputGroup.Text>
+                    </InputGroup>
+                  </Form.Group>
+                  <Form.Group className="mb-3" controlId="formBasicPassword">
+                    <Form.Label>Confirm Password</Form.Label>
+                    <InputGroup className="mb-3">
+                      <InputGroup.Text>
+                        <Lock size={16} />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={confirmNewPasswordInput}
+                        minLength={8}
+                        placeholder="Confirm Password"
+                        onChange={(evt) =>
+                          setConfirmNewPassword(evt.target.value)
+                        }
+                        isInvalid={warnConfirmNewPassword}
+                      />
+                      <InputGroup.Text>
+                        {confirmEye ? (
+                          <EyeSlash
+                            size={16}
+                            onClick={(_evt) => showHidePassword("confirm")}
+                          />
+                        ) : (
+                          <Eye
+                            size={16}
+                            onClick={(_evt) => showHidePassword("confirm")}
+                          />
+                        )}
+                      </InputGroup.Text>
+                    </InputGroup>
+                  </Form.Group>
+                </>
+              )}
               <Button variant="primary" type="submit">
-                {isLoggingIn ? "Loading..." : "Login >>"}
+                {isLoggingIn
+                  ? "Loading..."
+                  : !showConfirmNewPassword
+                  ? "Login >>"
+                  : "Submit >>"}
               </Button>
               &nbsp;&nbsp;
-              <Link to="/">
-                <Button variant="outline-primary" onClick={() => cancelLogin()}>
-                  Cancel
-                </Button>
-              </Link>
+              <Button variant="outline-primary" onClick={() => cancelLogin()}>
+                Cancel
+              </Button>
             </Form>
           </Col>
         </Row>

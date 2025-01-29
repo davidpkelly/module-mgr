@@ -1,6 +1,7 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuth } from "./auth";
+import Loading from "./components/Loading";
 
 // Set up a Router instance
 const router = createRouter({
@@ -8,7 +9,7 @@ const router = createRouter({
   defaultPreload: "intent",
   context: {
     auth: undefined!,
-  }
+  },
 });
 
 // Register things for typesafety
@@ -20,7 +21,11 @@ declare module "@tanstack/react-router" {
 
 function InnerApp() {
   const auth = useAuth();
-  return <RouterProvider router={router} context={{ auth }} />;
+  return auth.isCheckingAuth ? (
+    <Loading />
+  ) : (
+    <RouterProvider router={router} context={{ auth }} />
+  );
 }
 
 function App() {

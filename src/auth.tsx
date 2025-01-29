@@ -1,49 +1,62 @@
 import * as React from "react";
-import { signIn, signOut, fetchAuthSession } from "aws-amplify/auth";
+import {
+  signIn,
+  signOut,
+  getCurrentUser,
+  fetchAuthSession,
+  JWT,
+} from "aws-amplify/auth";
 
 export interface AuthContext {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  isCheckingAuth: boolean;
+  login: (username: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
   resetPassword(): unknown;
-  user: string | null;
+  user: JWT | undefined;
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null);
 
-const key = "mm.auth.user";
-
-function getStoredUser() {
-  return localStorage.getItem(key);
-}
-
-function setStoredUser(user: string | null) {
-  if (user) {
-    localStorage.setItem(key, user);
-  } else {
-    localStorage.removeItem(key);
-  }
-}
+const checkUserSession = async (): Promise<string> => {
+  const user = await getCurrentUser();
+  return user.username;
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<string | null>(getStoredUser());
-  const isAuthenticated = !!user;
+  const [user, setUser] = React.useState<JWT | undefined>(undefined);
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  React.useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = () =>
+    checkUserSession()
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false))
+      .then(() => setIsCheckingAuth(false));
 
   const logout = React.useCallback(async () => {
+    setIsAuthenticated(false);
     await signOut();
-    setStoredUser(null);
-    setUser(null);
+    setIsAuthenticated(false);
+    setUser(undefined);
   }, []);
 
   const login = React.useCallback(
     async (username: string, password: string) => {
       try {
-        await signIn({ username, password });
-        setStoredUser(username);
-        setUser(username);
-        const session = await fetchAuthSession();
-        console.log("[fetchAuthSession]:", session);
+        const signinUser = await signIn({ username, password });
+        setIsAuthenticated(true);
+        if (signinUser.isSignedIn) {
+          const { idToken } = (await fetchAuthSession()).tokens ?? {};
+          setUser(idToken);
+        }
+        return signinUser;
       } catch (error: any) {
+        setIsAuthenticated(false);
         throw error;
       } finally {
       }
@@ -53,14 +66,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async () => {
     alert(`TBD:: Reset password `);
-  }
-
-  React.useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+  };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, resetPassword }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        isCheckingAuth,
+        user,
+        login,
+        logout,
+        resetPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
