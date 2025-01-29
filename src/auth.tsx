@@ -35,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = () =>
     checkUserSession()
       .then(() => setIsAuthenticated(true))
+      .then(() => fetchAuthSession())
+      .then((session) => setUser(session?.tokens?.idToken))
       .catch(() => setIsAuthenticated(false))
       .then(() => setIsCheckingAuth(false));
 

@@ -19,10 +19,7 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../auth";
 import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
-import {
-  confirmSignIn,
-  AuthError,
-} from "aws-amplify/auth";
+import { confirmSignIn, AuthError } from "aws-amplify/auth";
 
 const fallback = "/main" as const;
 
@@ -83,7 +80,10 @@ function LoginPage() {
       try {
         signedInUser = await auth.login(username, password);
       } catch (error: any) {
-        if (error instanceof AuthError && error?.name === "NotAuthorizedException") {
+        if (
+          error instanceof AuthError &&
+          error?.name === "NotAuthorizedException"
+        ) {
           setShowToast("Failed to login. Check your username and password.");
           return;
         } else {
@@ -102,7 +102,11 @@ function LoginPage() {
         return;
       }
     } else {
-      if (!newPassword || !confirmNewPassword || newPassword !== confirmNewPassword) {
+      if (
+        !newPassword ||
+        !confirmNewPassword ||
+        newPassword !== confirmNewPassword
+      ) {
         setWarnNewPassword(true);
         setWarnConfirmNewPassword(true);
       }
@@ -119,13 +123,12 @@ function LoginPage() {
         setIsSubmitting(false);
       }
     }
-    // if (signedInUser.nextStep.signInStep === "DONE") {
-      await router.invalidate();
-      // @ts-ignore
-      await navigate({ to: search.redirect || fallback });
-    // } else {
-      // setShowToast(`Failed to login: ${signedInUser.nextStep.signInStep}`);
-    // }
+    if (signedInUser.nextStep.signInStep !== "DONE") {
+      setShowToast(`Failed to login: ${signedInUser.nextStep.signInStep}`);
+    }
+    await router.invalidate();
+    // @ts-ignore
+    await navigate({ to: search.redirect || fallback });
   };
 
   const showHidePassword = (idx: string) => {
@@ -187,9 +190,7 @@ function LoginPage() {
           show={showToast !== ""}
           autohide
         >
-          <Toast.Body>
-            {showToast}
-          </Toast.Body>
+          <Toast.Body>{showToast}</Toast.Body>
         </Toast>
       </ToastContainer>
       <Container>

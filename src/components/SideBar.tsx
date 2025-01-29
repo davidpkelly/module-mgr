@@ -3,7 +3,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { Nav, NavItem, NavDropdown } from "react-bootstrap";
 import "../index.css";
 
-const SideBar = () => {
+const SideBar = ({ userRole }: { userRole: string }) => {
   const state = useRouterState();
   const activeRoute = state.location.pathname;
 
@@ -17,17 +17,21 @@ const SideBar = () => {
         >
           Configure
         </Nav.Link>
-        <NavDropdown title="Admin" id="sidebar-sub-menu" show={true}>
-          <NavDropdown.Item
-            href="/module-profiles"
-            active={activeRoute === "/module-profiles"}
-          >
-            Module Profiles
-          </NavDropdown.Item>
-          <NavDropdown.Item href="/users" active={activeRoute === "/users"}>
-            User Mgmt
-          </NavDropdown.Item>
-        </NavDropdown>
+        {userRole !== "user" && (
+          <NavDropdown title="Admin" id="sidebar-sub-menu" show={true}>
+            <NavDropdown.Item
+              href="/module-profiles"
+              active={activeRoute === "/module-profiles"}
+            >
+              Module Profiles
+            </NavDropdown.Item>
+            {userRole === "super" && (
+              <NavDropdown.Item href="/users" active={activeRoute === "/users"}>
+                User Mgmt
+              </NavDropdown.Item>
+            )}
+          </NavDropdown>
+        )}
       </NavItem>
     </Nav>
   );
