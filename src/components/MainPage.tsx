@@ -42,7 +42,6 @@ const MainPage = () => {
   return (
     <Container>
       <Row className="px-4 my-5">
-        <Col></Col>
         <Col xs={6}>
           <h1>Module Configuration</h1>
         </Col>

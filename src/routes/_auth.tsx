@@ -46,7 +46,7 @@ function AuthContent() {
     const role = JSON.parse(JSON.stringify(auth.user?.payload))["cognito:groups"];
     if (role?.includes("SUPERADMINS")) {
       return "super";
-    } else if (role?.includes("ADMINS")) {
+    } else if (role?.includes("ADMIN")) {
       return "admin";
     } else {
       return "user";

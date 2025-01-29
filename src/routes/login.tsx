@@ -123,8 +123,8 @@ function LoginPage() {
         setIsSubmitting(false);
       }
     }
-    if (signedInUser.nextStep.signInStep !== "DONE") {
-      setShowToast(`Failed to login: ${signedInUser.nextStep.signInStep}`);
+    if (signedInUser?.nextStep?.signInStep !== "DONE") {
+      setShowToast(`Failed to login: ${signedInUser?.nextStep?.signInStep || "Unknown Error"}`);
     }
     await router.invalidate();
     // @ts-ignore
