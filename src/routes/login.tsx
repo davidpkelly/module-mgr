@@ -29,6 +29,7 @@ export const Route = createFileRoute("/login")({
       // @ts-ignore
       throw redirect({ to: search?.redirect || fallback });
     }
+    return context.auth.user;
   },
   component: LoginPage,
 });

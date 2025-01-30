@@ -1,15 +1,12 @@
 import {
   createFileRoute,
   redirect,
-  useRouter,
   Outlet,
 } from "@tanstack/react-router";
 import { useAuth } from "../auth";
 import { Col, Container, Row } from "react-bootstrap";
 
 import SideBar from "../components/SideBar";
-import NavBar from "../components/NavBar";
-import Footer from "../components/Footer";
 
 import "./index.css";
 
@@ -28,19 +25,7 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function AuthContent() {
-  const router = useRouter();
-  const navigate = Route.useNavigate();
   const auth = useAuth();
-
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      auth.logout().then(() => {  
-        router.invalidate().finally(() => {
-          navigate({ to: "/" });
-        });
-      });
-    }
-  };
 
   const getUserRole = ():string => {
     const role = JSON.parse(JSON.stringify(auth.user?.payload))["cognito:groups"];
@@ -55,7 +40,6 @@ function AuthContent() {
 
   return (
     <>
-      <NavBar isAuthenticated={true} handleLogout={handleLogout}/>
       <Container fluid>
         <Row>
           <Col xs={2} className="sidebar px-0">
@@ -66,7 +50,6 @@ function AuthContent() {
           </Col>
         </Row>
       </Container>
-      <Footer />
     </>
   );
 }
