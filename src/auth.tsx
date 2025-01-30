@@ -36,15 +36,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const checkAuth = () =>
-    checkUserSession()
-      .then(() => setIsAuthenticated(true))
-      .then(() => fetchAuthSession())
-      .then((session) => setUser(session?.tokens?.idToken))
-      .catch(() => setIsAuthenticated(false))
-      .then(() => setIsCheckingAuth(false));
+  const checkAuth = async () => {
+    try {
+      await checkUserSession();
+      setIsAuthenticated(true);
+      if (!user) {
+        const { tokens } = await fetchAuthSession();
+        setUser(tokens?.idToken);
+      }
+    } catch (err) {
+      setIsAuthenticated(false);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
 
-  const logout = React.useCallback(async (): Promise<void>  => {
+  const logout = React.useCallback(async (): Promise<void> => {
     setIsAuthenticated(false);
     await signOut();
     setIsAuthenticated(false);
@@ -52,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = React.useCallback(
-    async (username: string, password: string): Promise<any>  => {
+    async (username: string, password: string): Promise<any> => {
       try {
         const signinUser = await signIn({ username, password });
         setIsAuthenticated(true);
@@ -71,35 +78,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   //TBD: FIXME
-  const resetPasswd = React.useCallback(async (username: string): Promise<void> => {
-    try {
-      const cfg = {} as ResetPasswordInput;
-      cfg.username = username;
-      const resetPwd = await resetPassword(cfg);
-      console.log("ResetPassword: ", resetPwd);
-      setIsAuthenticated(true);
-    } catch (error: any) {
-      throw error;
-    }
-  }, []);
-
-  const confirmLogIn = React.useCallback(async (password: string): Promise<any> => {
-    try {
-      const signinUser = await confirmSignIn({
-        challengeResponse: password,
-      });
-      setIsAuthenticated(true);
-      if (signinUser.isSignedIn) {
-        const { idToken } = (await fetchAuthSession()).tokens ?? {};
-        setUser(idToken);
+  const resetPasswd = React.useCallback(
+    async (username: string): Promise<void> => {
+      try {
+        const cfg = {} as ResetPasswordInput;
+        cfg.username = username;
+        const resetPwd = await resetPassword(cfg);
+        console.log("ResetPassword: ", resetPwd);
+        setIsAuthenticated(true);
+      } catch (error: any) {
+        throw error;
       }
-      return signinUser;
-    } catch (error: any) {
-      setIsAuthenticated(false);
-      throw error;
-    } finally {
-    }
-  }, []);
+    },
+    []
+  );
+
+  const confirmLogIn = React.useCallback(
+    async (password: string): Promise<any> => {
+      try {
+        const signinUser = await confirmSignIn({
+          challengeResponse: password,
+        });
+        setIsAuthenticated(true);
+        if (signinUser.isSignedIn) {
+          const { idToken } = (await fetchAuthSession()).tokens ?? {};
+          setUser(idToken);
+        }
+        return signinUser;
+      } catch (error: any) {
+        setIsAuthenticated(false);
+        throw error;
+      } finally {
+      }
+    },
+    []
+  );
 
   return (
     <AuthContext.Provider
@@ -110,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         resetPasswd,
-        confirmLogIn
+        confirmLogIn,
       }}
     >
       {children}

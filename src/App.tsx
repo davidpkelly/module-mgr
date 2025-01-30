@@ -9,7 +9,8 @@ const router = createRouter({
   defaultPreload: "intent",
   context: {
     auth: undefined!,
-  },
+  },  
+  defaultPendingComponent: () => (<Loading />),
 });
 
 // Register things for typesafety
@@ -24,7 +25,7 @@ function InnerApp() {
   return auth.isCheckingAuth ? (
     <Loading />
   ) : (
-    <RouterProvider router={router} context={{ auth }} />
+    <RouterProvider defaultPreload="intent" router={router} context={{ auth }} />
   );
 }
 

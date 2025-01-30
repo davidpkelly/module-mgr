@@ -1,8 +1,22 @@
-import { MouseEventHandler } from "react";
+import { useRouter } from "@tanstack/react-router";
 import { Container, Navbar, Nav, NavDropdown } from "react-bootstrap";
 import { QuestionCircle } from 'react-bootstrap-icons';
+import { useAuth } from "../auth";
 
-const NavBar = ({ isAuthenticated, handleLogout }: { isAuthenticated: boolean, handleLogout: MouseEventHandler }) => {
+const NavBar = ({ isAuthenticated }: { isAuthenticated: boolean}) => {
+
+  const router = useRouter();
+  const auth = useAuth();
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout??')) {
+      auth.logout().then(() => {
+        router.invalidate().finally(() => {
+          router.navigate({ to: '/' })
+        })
+      })
+    }
+  }
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
