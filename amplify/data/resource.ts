@@ -1,4 +1,9 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import {
+  type ClientSchema,
+  a,
+  defineData,
+  defineFunction,
+} from "@aws-amplify/backend";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -6,12 +11,49 @@ adding a new "isDone" field as a boolean. The authorization rule below
 specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
+
+export const usersListHandler = defineFunction({
+  name: "list-users-handler",
+  entry: "list-users-handler/handler.ts",
+});
+
 const schema = a.schema({
-  Todo: a
+  AuditLog: a
     .model({
+      user: a.string(),
       content: a.string(),
+      datetime: a.datetime(),
+      resource: a.string(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.groups(["SUPERADMIN", "ADMIN"])]),
+
+  UserAttribute: a.customType({
+    Name: a.string(),
+    Value: a.string(),
+  }),
+
+  User: a.customType({
+    Attributes: a.ref("UserAttribute").array(),
+    Enabled: a.boolean(),
+    UserCreateDate: a.datetime(),
+    UserLastModifiedDate: a.datetime(),
+    UserStatus: a.string(),
+    Username: a.string(),
+  }),
+
+  UsersResponse: a.customType({
+    users: a.ref("User").array(),
+    admins: a.ref("User").array(),
+    superadmins: a.ref("User").array(),
+  }),
+
+  usersList: a
+    .query()
+    // return type of the query
+    .returns(a.ref("UsersResponse"))
+    // only allow users in the SUOERADMIN group to call the API
+    .authorization((allow) => [allow.group("SUPERADMIN")])
+    .handler(a.handler.function(usersListHandler)),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,11 +61,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    defaultAuthorizationMode: "userPool",
   },
 });
 
