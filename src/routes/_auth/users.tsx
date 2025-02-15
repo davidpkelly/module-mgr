@@ -53,7 +53,7 @@ function RouteComponent() {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRow, setSelectedRow] = useState<RowSelectionState>({});
   const [showToast, setShowToast] = useState<string>("");
-  const [toastType, setToastType] = useState<string>("warning");
+  const [toastType, setToastType] = useState<"warning" | "success" | "info" | "error" | undefined>("warning");
   const [showPasswordResetModal, setShowPasswordResetModal] =
     useState<boolean>(false);
   const [resetPasswordNextStep, setResetPasswordNextStep] = useState<any>();
@@ -118,7 +118,7 @@ function RouteComponent() {
       })
       .catch((err) => {
         console.error("Error occured when fetching users:", err);
-        setToastType("errror");
+        setToastType("error");
         setShowToast("Error occured when fetching users:" + err.message);
       });
   }, []);
