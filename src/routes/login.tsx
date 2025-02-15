@@ -14,12 +14,11 @@ import {
   Form,
   InputGroup,
   Row,
-  Toast,
-  ToastContainer,
 } from "react-bootstrap";
 import { useAuth } from "../auth";
 import { Envelope, Eye, EyeSlash, Lock } from "react-bootstrap-icons";
 import { AuthError } from "aws-amplify/auth";
+import ToastMessage from "../components/ToastMessage";
 
 const fallback = "/main" as const;
 
@@ -188,17 +187,7 @@ function LoginPage() {
 
   return (
     <>
-      <ToastContainer position="top-center">
-        <Toast
-          className="d-inline-block m-1"
-          bg={"warning"}
-          onClose={() => setShowToast("")}
-          show={showToast !== ""}
-          autohide
-        >
-          <Toast.Body>{showToast}</Toast.Body>
-        </Toast>
-      </ToastContainer>
+      <ToastMessage show={showToast !== ""} onClose={() => setShowToast("")} message={showToast} type="warning" />
       <Container>
         <Row className="justify-content-md-center px-4 my-5">
           <Col sm={6}>

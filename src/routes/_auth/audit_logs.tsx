@@ -1,25 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Col, Row } from "react-bootstrap";
-// import TableComponent from "../../components/TableComponent";
 
-export const Route = createFileRoute("/_auth/module-profiles")({
-  component: ModuleProfiles,
+export const Route = createFileRoute("/_auth/audit_logs")({
+  component: AboutPage,
 });
 
-function ModuleProfiles() {
+function AboutPage() {
   return (
     <Container>
       <Row className="px-4 my-5">
         <Col xs={6}>
-          <h1>Module Profiles</h1>
+          <h1>Audit Logs</h1>
         </Col>
         <Col></Col>
       </Row>
       <Row className="px-4 my-5">
         <Col>
-          <Row>
-            {/* <TableComponent /> */}
-          </Row>
+          <Row>{/* <TableComponent /> */}</Row>
         </Col>
       </Row>
     </Container>

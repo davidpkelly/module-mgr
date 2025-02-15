@@ -20,6 +20,7 @@ import { Route as AuthUserProfileImport } from './routes/_auth/user-profile'
 import { Route as AuthModuleProfilesImport } from './routes/_auth/module-profiles'
 import { Route as AuthMainImport } from './routes/_auth/main'
 import { Route as AuthHelpImport } from './routes/_auth/help'
+import { Route as AuthAuditlogsImport } from './routes/_auth/audit_logs'
 import { Route as AuthAdminImport } from './routes/_auth/admin'
 import { Route as AuthAboutImport } from './routes/_auth/about'
 
@@ -75,6 +76,12 @@ const AuthMainRoute = AuthMainImport.update({
 const AuthHelpRoute = AuthHelpImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthAuditlogsRoute = AuthAuditlogsImport.update({
+  id: '/audit_logs',
+  path: '/audit_logs',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -136,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAdminImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/audit_logs': {
+      id: '/_auth/audit_logs'
+      path: '/audit_logs'
+      fullPath: '/audit_logs'
+      preLoaderRoute: typeof AuthAuditlogsImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/help': {
       id: '/_auth/help'
       path: '/help'
@@ -179,6 +193,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthAboutRoute: typeof AuthAboutRoute
   AuthAdminRoute: typeof AuthAdminRoute
+  AuthAuditlogsRoute: typeof AuthAuditlogsRoute
   AuthHelpRoute: typeof AuthHelpRoute
   AuthMainRoute: typeof AuthMainRoute
   AuthModuleProfilesRoute: typeof AuthModuleProfilesRoute
@@ -189,6 +204,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthAboutRoute: AuthAboutRoute,
   AuthAdminRoute: AuthAdminRoute,
+  AuthAuditlogsRoute: AuthAuditlogsRoute,
   AuthHelpRoute: AuthHelpRoute,
   AuthMainRoute: AuthMainRoute,
   AuthModuleProfilesRoute: AuthModuleProfilesRoute,
@@ -205,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/about': typeof AuthAboutRoute
   '/admin': typeof AuthAdminRoute
+  '/audit_logs': typeof AuthAuditlogsRoute
   '/help': typeof AuthHelpRoute
   '/main': typeof AuthMainRoute
   '/module-profiles': typeof AuthModuleProfilesRoute
@@ -219,6 +236,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/about': typeof AuthAboutRoute
   '/admin': typeof AuthAdminRoute
+  '/audit_logs': typeof AuthAuditlogsRoute
   '/help': typeof AuthHelpRoute
   '/main': typeof AuthMainRoute
   '/module-profiles': typeof AuthModuleProfilesRoute
@@ -234,6 +252,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_auth/about': typeof AuthAboutRoute
   '/_auth/admin': typeof AuthAdminRoute
+  '/_auth/audit_logs': typeof AuthAuditlogsRoute
   '/_auth/help': typeof AuthHelpRoute
   '/_auth/main': typeof AuthMainRoute
   '/_auth/module-profiles': typeof AuthModuleProfilesRoute
@@ -250,6 +269,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/about'
     | '/admin'
+    | '/audit_logs'
     | '/help'
     | '/main'
     | '/module-profiles'
@@ -263,6 +283,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/about'
     | '/admin'
+    | '/audit_logs'
     | '/help'
     | '/main'
     | '/module-profiles'
@@ -276,6 +297,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/_auth/about'
     | '/_auth/admin'
+    | '/_auth/audit_logs'
     | '/_auth/help'
     | '/_auth/main'
     | '/_auth/module-profiles'
@@ -322,6 +344,7 @@ export const routeTree = rootRoute
       "children": [
         "/_auth/about",
         "/_auth/admin",
+        "/_auth/audit_logs",
         "/_auth/help",
         "/_auth/main",
         "/_auth/module-profiles",
@@ -341,6 +364,10 @@ export const routeTree = rootRoute
     },
     "/_auth/admin": {
       "filePath": "_auth/admin.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/audit_logs": {
+      "filePath": "_auth/audit_logs.tsx",
       "parent": "/_auth"
     },
     "/_auth/help": {

@@ -25,6 +25,9 @@ const SideBar = ({ userRole }: { userRole: string }) => {
             >
               Module Profiles
             </NavDropdown.Item>
+            <NavDropdown.Item href="/audit_logs" active={activeRoute === "/audit_logs"}>
+              Audit Logs
+            </NavDropdown.Item>
             {userRole === "super" && (
               <NavDropdown.Item href="/users" active={activeRoute === "/users"}>
                 User Mgmt

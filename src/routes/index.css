@@ -27,3 +27,23 @@
   background-color: gainsboro;
   border: none;
 }
+
+table {
+  border: 1px solid lightgray;
+}
+
+tbody {
+  border-bottom: 1px solid lightgray;
+}
+
+th {
+  border-bottom: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  padding: 2px 4px;
+}
+
+.table-cell-center {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}

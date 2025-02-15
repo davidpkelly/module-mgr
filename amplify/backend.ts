@@ -9,4 +9,4 @@ const backend = defineBackend({
 
 const { groups } = backend.auth.resources;
 
-// groups["SUPERADMINS"].role;
+// groups["SUPERADMIN"].role;
