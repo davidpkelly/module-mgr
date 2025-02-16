@@ -1,7 +1,7 @@
 import React from "react";
 import { Toast, ToastContainer } from "react-bootstrap";
 
-interface ToastMessageProps {
+export interface ToastMessageProps {
   show: boolean;
   onClose: () => void;
   message: string;

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Col, Row } from "react-bootstrap";
-// import TableComponent from "../../components/TableComponent";
 
 export const Route = createFileRoute("/_auth/module-profiles")({
   component: ModuleProfiles,
@@ -18,7 +17,6 @@ function ModuleProfiles() {
       <Row className="px-4 my-5">
         <Col>
           <Row>
-            {/* <TableComponent /> */}
           </Row>
         </Col>
       </Row>

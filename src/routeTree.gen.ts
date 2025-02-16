@@ -22,6 +22,7 @@ import { Route as AuthMainImport } from './routes/_auth/main'
 import { Route as AuthHelpImport } from './routes/_auth/help'
 import { Route as AuthAuditlogsImport } from './routes/_auth/audit_logs'
 import { Route as AuthAdminImport } from './routes/_auth/admin'
+import { Route as AuthAccountsImport } from './routes/_auth/accounts'
 import { Route as AuthAboutImport } from './routes/_auth/about'
 
 // Create/Update Routes
@@ -91,6 +92,12 @@ const AuthAdminRoute = AuthAdminImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
+const AuthAccountsRoute = AuthAccountsImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AuthRoute,
+} as any)
+
 const AuthAboutRoute = AuthAboutImport.update({
   id: '/about',
   path: '/about',
@@ -134,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AuthAboutImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/accounts': {
+      id: '/_auth/accounts'
+      path: '/accounts'
+      fullPath: '/accounts'
+      preLoaderRoute: typeof AuthAccountsImport
       parentRoute: typeof AuthImport
     }
     '/_auth/admin': {
@@ -192,6 +206,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthAboutRoute: typeof AuthAboutRoute
+  AuthAccountsRoute: typeof AuthAccountsRoute
   AuthAdminRoute: typeof AuthAdminRoute
   AuthAuditlogsRoute: typeof AuthAuditlogsRoute
   AuthHelpRoute: typeof AuthHelpRoute
@@ -203,6 +218,7 @@ interface AuthRouteChildren {
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthAboutRoute: AuthAboutRoute,
+  AuthAccountsRoute: AuthAccountsRoute,
   AuthAdminRoute: AuthAdminRoute,
   AuthAuditlogsRoute: AuthAuditlogsRoute,
   AuthHelpRoute: AuthHelpRoute,
@@ -220,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AuthAboutRoute
+  '/accounts': typeof AuthAccountsRoute
   '/admin': typeof AuthAdminRoute
   '/audit_logs': typeof AuthAuditlogsRoute
   '/help': typeof AuthHelpRoute
@@ -235,6 +252,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AuthAboutRoute
+  '/accounts': typeof AuthAccountsRoute
   '/admin': typeof AuthAdminRoute
   '/audit_logs': typeof AuthAuditlogsRoute
   '/help': typeof AuthHelpRoute
@@ -251,6 +269,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_auth/about': typeof AuthAboutRoute
+  '/_auth/accounts': typeof AuthAccountsRoute
   '/_auth/admin': typeof AuthAdminRoute
   '/_auth/audit_logs': typeof AuthAuditlogsRoute
   '/_auth/help': typeof AuthHelpRoute
@@ -268,6 +287,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/accounts'
     | '/admin'
     | '/audit_logs'
     | '/help'
@@ -282,6 +302,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/accounts'
     | '/admin'
     | '/audit_logs'
     | '/help'
@@ -296,6 +317,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_auth/about'
+    | '/_auth/accounts'
     | '/_auth/admin'
     | '/_auth/audit_logs'
     | '/_auth/help'
@@ -343,6 +365,7 @@ export const routeTree = rootRoute
       "filePath": "_auth.tsx",
       "children": [
         "/_auth/about",
+        "/_auth/accounts",
         "/_auth/admin",
         "/_auth/audit_logs",
         "/_auth/help",
@@ -360,6 +383,10 @@ export const routeTree = rootRoute
     },
     "/_auth/about": {
       "filePath": "_auth/about.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/accounts": {
+      "filePath": "_auth/accounts.tsx",
       "parent": "/_auth"
     },
     "/_auth/admin": {
