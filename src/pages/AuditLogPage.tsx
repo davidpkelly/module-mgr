@@ -15,7 +15,9 @@ import { useState } from "react";
 type AuditLog = Schema["AuditLog"]["type"];
 
 const AuditLogPage = () => {
+  // @ts-ignore
   const [auditLog, setAuditLog] = useState<AuditLog[] | []>([]);
+  // @ts-ignore
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedRow, setSelectedRow] = useState<RowSelectionState>({});
 
