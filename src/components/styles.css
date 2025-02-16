@@ -1,0 +1,36 @@
+
+.untoggled-button {
+    /* background-image: green !important; */
+    background-color: green;
+    color: white;
+  }
+  .untoggled-button-active {
+    background-color: red;
+  }
+
+  .ms-btn {
+    background-color: lightcyan;
+    color: black;
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+    font-size: 1.5rem !important;
+  }
+
+  .ms-btn-xxl {
+    font-size: 1.5rem !important;
+  }
+
+  /* selected btn css */
+.ms-btn-group-toggle .btn:not(:disabled):not(.disabled).active, .ms-btn-group-toggle .btn:not(:disabled):not(.disabled):active, .show>.btn.dropdown-toggle {
+    color: #fff;
+    background-color: #2196F3;
+    border-color: #2196F3;
+}
+
+/* non selected btn css */
+.ms-btn-group-toggle .btn {
+color: #fff;
+background-color: #b7b7b7;
+border-color: #6c757d;
+}

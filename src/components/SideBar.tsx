@@ -28,6 +28,9 @@ const SideBar = ({ userRole }: { userRole: string }) => {
             <NavDropdown.Item href="/audit_logs" active={activeRoute === "/audit_logs"}>
               Audit Logs
             </NavDropdown.Item>
+            <NavDropdown.Item href="/accounts" active={activeRoute === "/accounts"}>
+              Customer Mgmt
+            </NavDropdown.Item>
             {userRole === "super" && (
               <NavDropdown.Item href="/users" active={activeRoute === "/users"}>
                 User Mgmt
